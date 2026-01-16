@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Easy_Editor – To-Do</title>
+
+  <!-- fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Recursive:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* base */
+    body {
+      font-family: 'Fira Code', monospace;
+      background-color: #282828;
+      color: #ebdbb2;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    /* card */
+    .card {
+      background: #1d2021;
+      border: 1px solid #504945;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      border-radius: 4px;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    }
+
+    /* window dots */
+    .card-header {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .dot.red { background: #fb4934; }
+    .dot.yellow { background: #fabd2f; }
+    .dot.green { background: #b8bb26; }
+
+    /* layout */
+    h1 {
+      margin: 0.5rem 0;
+      font-family: 'Recursive', sans-serif;
+      font-weight: 900;
+    }
+
+    p {
+      color: #d5c4a1;
+      margin-bottom: 1rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    /* input */
+    input {
+      background: #282828;
+      border: 1px solid #504945;
+      color: #ebdbb2;
+      padding: 0.5rem 0.75rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #928374;
+    }
+
+    /* button */
+    button {
+      background: #3c3836;
+      border: 1px solid #504945;
+      color: #ebdbb2;
+      padding: 0.5rem 1rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #504945;
+    }
+
+    /* todo list */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 1.5rem;
+    }
+
+    li {
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed #3c3836;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    li span {
+      flex: 1;
+    }
+
+    li button {
+      background: none;
+      border: none;
+      color: #fb4934;
+      padding: 0;
+      font-size: 0.8rem;
+    }
+
+    /* footer */
+    .terminal-foot {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: #928374;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="card-header">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+    </div>
+
+    <h1>To-Do</h1>
+    <p>A high-performance, static to-do list. No frameworks. No overhead.</p>
+
+    <!-- input row -->
+    <div class="feature-grid">
+      <input id="todoInput" placeholder="add a task…" />
+      <button id="addBtn">add</button>
+    </div>
+
+    <!-- list -->
+    <ul id="todoList"></ul>
+
+    <div class="terminal-foot">
+      $ state is stored in the URL · refresh-safe · zero dependencies
+    </div>
+  </div>
+
+  <script>
+    /* state */
+    const listEl = document.getElementById('todoList');
+    const inputEl = document.getElementById('todoInput');
+
+    /* url params helper */
+    const params = new URLSearchParams(location.search);
+    let todos = params.get('t')
+      ? params.get('t').split('|').filter(Boolean)
+      : [];
+
+    /* render */
+    function render() {
+      listEl.innerHTML = '';
+      for (let i = 0; i < todos.length; i++) {
+        const li = document.createElement('li');
+
+        const text = document.createElement('span');
+        text.textContent = todos[i];
+
+        const del = document.createElement('button');
+        del.textContent = '×';
+        del.onclick = () => removeTodo(i);
+
+        li.append(text, del);
+        listEl.appendChild(li);
+      }
+
+      params.set('t', todos.join('|'));
+      history.replaceState(null, '', '?' + params.toString());
+    }
+
+    /* add */
+    function addTodo() {
+      const value = inputEl.value.trim();
+      if (!value) return;
+
+      todos.push(value);
+      inputEl.value = '';
+      render();
+    }
+
+    /* remove */
+    function removeTodo(index) {
+      todos.splice(index, 1);
+      render();
+    }
+
+    /* events */
+    document.getElementById('addBtn').onclick = addTodo;
+    inputEl.onkeydown = e => e.key === 'Enter' && addTodo();
+
+    /* init */
+    render();
+  </script>
+</body>
+</html>
